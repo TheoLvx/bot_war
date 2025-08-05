@@ -10,9 +10,10 @@ app.use(express.json());
 
 // ✅ Route obligatoire du jeu (appelée à chaque tick)
 app.get('/action', (req, res) => {
-  const decision = decideAction(); // Appelle ta logique
-  res.json(decision);
+  console.log("Reçu:", req.body);  // <--- Ici tu verras si un JSON est envoyé
+  res.json({ move: "UP", action: "COLLECT" });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Bot running on port ${PORT}`);
