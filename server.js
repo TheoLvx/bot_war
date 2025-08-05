@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/action', (req, res) => {
-  res.json({ move: "UP", action: "COLLECT" });
+  res.json({ move: "DOWN", action: "COLLECT" });
 });
 
 app.listen(PORT, () => {
