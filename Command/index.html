@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interface Bot</title>
+  <style>
+    button { margin: 5px; padding: 10px 20px; font-size: 16px; }
+    .selected { background-color: #4CAF50; color: white; }
+  </style>
+</head>
+<body>
+  <h1>Contrôle du bot</h1>
+
+  <div>
+    <h2>Move</h2>
+    <button data-move="UP">UP</button>
+    <button data-move="DOWN">DOWN</button>
+    <button data-move="LEFT">LEFT</button>
+    <button data-move="RIGHT">RIGHT</button>
+    <button data-move="STAY">STAY</button>
+  </div>
+
+  <div>
+    <h2>Action</h2>
+    <button data-action="BOMB">BOMB</button>
+    <button data-action="COLLECT">COLLECT</button>
+    <button data-action="NONE">NONE</button>
+  </div>
+
+  <div>
+    <button id="sendBtn">Envoyer la commande</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    let selectedMove = "STAY";
+    let selectedAction = "NONE";
+
+    // Sélection des boutons move
+    document.querySelectorAll('button[data-move]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedMove = btn.getAttribute('data-move');
+        updateSelected('move', selectedMove);
+      });
+    });
+
+    // Sélection des boutons action
+    document.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedAction = btn.getAttribute('data-action');
+        updateSelected('action', selectedAction);
+      });
+    });
+
+    function updateSelected(type, value) {
+      document.querySelectorAll(`button[data-${type}]`).forEach(btn => {
+        if (btn.getAttribute(`data-${type}`) === value) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+
+    // Initial highlight
+    updateSelected('move', selectedMove);
+    updateSelected('action', selectedAction);
+
+    document.getElementById('sendBtn').addEventListener('click', () => {
+      fetch('https://bot-war-f8zx.onrender.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ move: selectedMove, action: selectedAction })
+        })
+
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('status').textContent = 'Commande envoyée: ' + JSON.stringify(data.currentCommand);
+      })
+      .catch(err => {
+        document.getElementById('status').textContent = 'Erreur: ' + err;
+      });
+    });
+  </script>
+</body>
+</html>
