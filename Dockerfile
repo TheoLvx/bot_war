@@ -14,7 +14,7 @@ RUN npm install --production
 COPY . .
 
 # Exposer le port (doit matcher celui dans le code)
-EXPOSE 4000
+EXPOSE 10000
 
 # Commande pour démarrer le serveur
 CMD ["node", "server.js"]
