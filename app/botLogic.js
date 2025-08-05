@@ -8,15 +8,16 @@ const directions = [
 function decideAction(state) {
   const { grid, botPos, points } = state;
   if (!grid || !botPos) return { move: "STAY", action: "NONE" };
+
   const height = grid.length;
   const width = grid[0].length;
 
-  // Si le bot est sur un point, alors collecter
-  if (points && points.some(p => p.x === botPos.x && p.y === botPos.y)) {
+  // Collecter si on est sur un point
+  if (points?.some(p => p.x === botPos.x && p.y === botPos.y)) {
     return { move: "STAY", action: "COLLECT" };
   }
 
-  // Recherche du chemin le plus court vers un point
+  // BFS pour trouver le point le plus proche
   const visited = Array.from({ length: height }, () =>
     Array(width).fill(false)
   );
@@ -31,26 +32,26 @@ function decideAction(state) {
       const ny = pos.y + dir.dy;
 
       if (
-        nx >= 0 &&
-        nx < width &&
-        ny >= 0 &&
-        ny < height &&
+        nx >= 0 && nx < width &&
+        ny >= 0 && ny < height &&
         !visited[ny][nx] &&
         grid[ny][nx] !== "WALL" &&
         grid[ny][nx] !== "BOMB"
       ) {
         const newPath = [...path, dir.move];
-        // Si on arrive sur un point
-        if (points && points.some(p => p.x === nx && p.y === ny)) {
+
+        // Si un point est trouvé
+        if (points?.some(p => p.x === nx && p.y === ny)) {
           return { move: newPath[0], action: "NONE" };
         }
+
         visited[ny][nx] = true;
         queue.push({ pos: { x: nx, y: ny }, path: newPath });
       }
     }
   }
 
-  return { move: "STAY", action: "NONE" };
+  return { move: "STAY", action: "NONE" }; // bloqué
 }
 
 module.exports = { decideAction };
