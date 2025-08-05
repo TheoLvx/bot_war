@@ -2,86 +2,103 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Interface Bot</title>
+  <title>Contrôle Bot</title>
   <style>
-    button { margin: 5px; padding: 10px 20px; font-size: 16px; }
-    .selected { background-color: #4CAF50; color: white; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .controller {
+      display: grid;
+      grid-template-areas:
+        ". up ."
+        "left stay right"
+        ". down .";
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .controller button {
+      padding: 20px;
+      font-size: 16px;
+      width: 100px;
+      height: 60px;
+      cursor: pointer;
+    }
+
+    .actions {
+      margin-top: 20px;
+    }
+
+    .actions button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <h1>Contrôle du bot</h1>
+  <h1>Contrôle du Bot</h1>
 
-  <div>
-    <h2>Move</h2>
-    <button data-move="UP">UP</button>
-    <button data-move="DOWN">DOWN</button>
-    <button data-move="LEFT">LEFT</button>
-    <button data-move="RIGHT">RIGHT</button>
-    <button data-move="STAY">STAY</button>
+  <div class="controller">
+    <button style="grid-area: up;" data-move="UP">↑</button>
+    <button style="grid-area: left;" data-move="LEFT">←</button>
+    <button style="grid-area: stay;" data-move="STAY">⏸</button>
+    <button style="grid-area: right;" data-move="RIGHT">→</button>
+    <button style="grid-area: down;" data-move="DOWN">↓</button>
   </div>
 
-  <div>
-    <h2>Action</h2>
-    <button data-action="BOMB">BOMB</button>
-    <button data-action="COLLECT">COLLECT</button>
-    <button data-action="NONE">NONE</button>
+  <div class="actions">
+    <button data-action="NONE">Aucune</button>
+    <button data-action="COLLECT">Collecter</button>
+    <button data-action="BOMB">Bombe</button>
   </div>
 
-  <div>
-    <button id="sendBtn">Envoyer la commande</button>
-  </div>
-
-  <div id="status"></div>
+  <p id="status"></p>
 
   <script>
-    let selectedMove = "STAY";
-    let selectedAction = "NONE";
+    let currentMove = "STAY";
+    let currentAction = "NONE";
 
-    // Sélection des boutons move
-    document.querySelectorAll('button[data-move]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedMove = btn.getAttribute('data-move');
-        updateSelected('move', selectedMove);
-      });
-    });
+    const apiURL = "https://bot-war-f8zx.onrender.com/setAction"; 
 
-    // Sélection des boutons action
-    document.querySelectorAll('button[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedAction = btn.getAttribute('data-action');
-        updateSelected('action', selectedAction);
-      });
-    });
-
-    function updateSelected(type, value) {
-      document.querySelectorAll(`button[data-${type}]`).forEach(btn => {
-        if (btn.getAttribute(`data-${type}`) === value) {
-          btn.classList.add('selected');
-        } else {
-          btn.classList.remove('selected');
-        }
+    function sendCommand() {
+      fetch(apiURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          move: currentMove,
+          action: currentAction
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").textContent = 
+          `Commande: ${data.currentCommand.move} + ${data.currentCommand.action}`;
+      })
+      .catch(err => {
+        document.getElementById("status").textContent = "Erreur d'envoi: " + err;
       });
     }
 
-    // Initial highlight
-    updateSelected('move', selectedMove);
-    updateSelected('action', selectedAction);
+    document.querySelectorAll("button[data-move]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentMove = btn.dataset.move;
+        sendCommand();
+      });
+    });
 
-    document.getElementById('sendBtn').addEventListener('click', () => {
-      fetch('https://bot-war-f8zx.onrender.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ move: selectedMove, action: selectedAction })
-        })
-
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('status').textContent = 'Commande envoyée: ' + JSON.stringify(data.currentCommand);
-      })
-      .catch(err => {
-        document.getElementById('status').textContent = 'Erreur: ' + err;
+    document.querySelectorAll("button[data-action]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentAction = btn.dataset.action;
+        sendCommand();
       });
     });
   </script>
 </body>
 </html>
+
