@@ -26,6 +26,11 @@ jobs:
       - name: Build Docker image
         run: docker build -t bot_war .
 
+      - name: Run Docker container (temporary)
+        run: |
+          docker run -d -p 4000:4000 --name bot_war_container bot_war
+          docker ps
+
       - name: Trigger Render Deploy
         run: |
           curl -X POST "https://api.render.com/deploy/srv-d28u9amr433s73c005fg?key=q-61FflA9Kk"
