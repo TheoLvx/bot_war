@@ -2,12 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Contrôle Bot</title>
+  <title>Bot Console Retro</title>
   <style>
     body {
-      font-family: sans-serif;
-      text-align: center;
+      background-color: black;
+      color: #00FF00;
+      font-family: 'Courier New', monospace;
       padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      text-shadow: 0 0 5px #00ff00;
     }
 
     .controller {
@@ -22,27 +29,53 @@
       margin-bottom: 30px;
     }
 
-    .controller button {
-      padding: 20px;
+    .controller button,
+    .actions button {
+      background-color: black;
+      color: #00FF00;
+      border: 2px solid #00FF00;
+      padding: 15px;
       font-size: 16px;
       width: 100px;
       height: 60px;
       cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .controller button:hover,
+    .actions button:hover {
+      background-color: #00FF00;
+      color: black;
     }
 
     .actions {
       margin-top: 20px;
     }
 
-    .actions button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
+    #status {
+      margin-top: 40px;
+      font-size: 18px;
+      min-height: 24px;
+      border-top: 1px solid #00ff00;
+      padding-top: 10px;
+      white-space: pre;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+
+    .typed {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typing 1s steps(20, end);
     }
   </style>
 </head>
 <body>
-  <h1>Contrôle du Bot</h1>
+  <h1>🕹️ Console de Contrôle Rétro</h1>
 
   <div class="controller">
     <button style="grid-area: up;" data-move="UP">↑</button>
@@ -64,21 +97,18 @@
     let currentMove = "STAY";
     let currentAction = "NONE";
 
-    const apiURL = "https://bot-war-f8zx.onrender.com/setAction"; 
+    const apiURL = "https://bot-war-f8zx.onrender.com/setAction"; // À adapter si nécessaire
 
     function sendCommand() {
       fetch(apiURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          move: currentMove,
-          action: currentAction
-        })
+        body: JSON.stringify({ move: currentMove, action: currentAction })
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById("status").textContent = 
-          `Commande: ${data.currentCommand.move} + ${data.currentCommand.action}`;
+        const status = document.getElementById("status");
+        status.innerHTML = `<span class="typed">Commande: ${data.currentCommand.move} + ${data.currentCommand.action}</span>`;
       })
       .catch(err => {
         document.getElementById("status").textContent = "Erreur d'envoi: " + err;
@@ -101,4 +131,3 @@
   </script>
 </body>
 </html>
-
